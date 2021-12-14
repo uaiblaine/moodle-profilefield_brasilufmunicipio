@@ -1,0 +1,88 @@
+<?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+
+namespace profilefield_brasilufmunicipio\external;
+
+require_once($CFG->libdir.'/filelib.php');
+
+/**
+ * Provides the profilefield_brasilufmunicipio_get_municipios external function.
+ *
+ * @package     profilefield_brasilufmunicipio
+ * @category    external
+ * @copyright   2021 Daniel Neis Araujo <daniel@adapta.online>
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class get_municipios extends \external_api {
+
+    /**
+     * Describes the external function parameters.
+     *
+     * @return external_function_parameters
+     */
+    public static function execute_parameters(): \external_function_parameters {
+
+        return new \external_function_parameters([
+            'uf' => new \external_value(PARAM_TEXT, 'UF to get municipios', VALUE_REQUIRED),
+        ]);
+    }
+
+    /**
+     * Finds users with the identity matching the given uf.
+     *
+     * @param string $uf The search request.
+     * @return array
+     */
+    public static function execute(string $uf): array {
+        global $DB, $CFG;
+
+        $params = \external_api::validate_parameters(self::execute_parameters(), [
+            'uf' => $uf,
+        ]);
+        $uf = $params['uf'];
+        // Validate context.
+        $context = \context_system::instance();
+        self::validate_context($context);
+
+
+        $url = 'https://servicodados.ibge.gov.br/api/v1/localidades/estados/';
+        $curl = new \curl();
+        $res = $curl->get($url . $uf . '/municipios');
+        $municipios = [];
+        if ($res) {
+            $res = json_decode($res);
+            foreach ($res as $m) {
+                $municipios[] = ['id' => $m->id, 'name' => $m->nome];
+            }
+        }
+        return $municipios;
+
+    }
+
+    /**
+     * Describes the external function result value.
+     *
+     * @return external_description
+     */
+    public static function execute_returns(): \external_description {
+        return new \external_multiple_structure(
+            new \external_single_structure([
+                'id' => new \external_value(PARAM_TEXT, 'ID of the Município.'),
+                'name' => new \external_value(PARAM_TEXT, 'Name of the Município.')
+            ])
+        );
+    }
+}

@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - https://moodle.org/
+// This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -12,20 +12,24 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 
 /**
- * Plugin strings are defined here.
+ * Conditional profile field webservice functions.
  *
  * @package     profilefield_brasilufmunicipio
- * @category    string
  * @copyright   2021 Daniel Neis Araujo <daniel@adapta.online>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['municipio'] = 'Município';
-$string['pluginname'] = 'Brasil UF e Município';
-$string['uf'] = 'UF';
-$string['municipio_help'] = 'Select UF to fill Município.';
+$functions = array(
+    'profilefield_brasilufmunicipio_get_municipios' => array(
+        'classname'    => 'profilefield_brasilufmunicipio\external\get_municipios',
+        'description'  => 'Return the list of municipios based on UF',
+        'type'         => 'read',
+        'ajax'         => true,
+    ),
+);
