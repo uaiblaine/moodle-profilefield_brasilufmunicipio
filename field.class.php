@@ -67,7 +67,12 @@ class profile_field_brasilufmunicipio extends profile_field_base {
     public function edit_field_add($mform) {
         global $PAGE;
 
-        $data = json_decode($this->data);
+        if (!empty($this->data)) {
+            $data = json_decode($this->data);
+            $municipio = $data->municipio;
+        } else {
+            $municipio = null;
+        }
 
         $mform->addElement('hidden', 'profile_field_ufmunicipio', 1);
         $mform->setType('profile_field_ufmunicipio', PARAM_INT);
@@ -78,7 +83,7 @@ class profile_field_brasilufmunicipio extends profile_field_base {
         $mform->addElement('select', 'profile_field_ufmunicipio[municipio]', get_string('municipio', 'profilefield_brasilufmunicipio'), [], 'disabled');
         $mform->addHelpButton('profile_field_ufmunicipio[municipio]', 'municipio', 'profilefield_brasilufmunicipio');
 
-        $PAGE->requires->js_call_amd('profilefield_brasilufmunicipio/field', 'init', [$data->municipio]);
+        $PAGE->requires->js_call_amd('profilefield_brasilufmunicipio/field', 'init', [$municipio]);
     }
 
     /**
@@ -111,7 +116,9 @@ class profile_field_brasilufmunicipio extends profile_field_base {
      */
     public function edit_load_user_data($user) {
         $data = json_decode($this->data);
-        $user->profile_field_ufmunicipio = ['uf' => $data->uf, 'municipio' => $data->municipio];
+        if ($data) {
+            $user->profile_field_ufmunicipio = ['uf' => $data->uf, 'municipio' => $data->municipio];
+        }
     }
 
     /**
