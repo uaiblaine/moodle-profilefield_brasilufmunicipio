@@ -24,25 +24,36 @@ define(
     ['core/ajax'],
     function(ajax) {
 
+        var get_municipios = function(municipio) {
+            let uf = document.getElementsByName('profile_field_ufmunicipio[uf]')[0];
+            let municipioselect = document.getElementsByName('profile_field_ufmunicipio[municipio]')[0];
+            municipioselect.innerHTML = "";
+            ajax.call([{
+                methodname: 'profilefield_brasilufmunicipio_get_municipios',
+                args: {uf: uf.options[uf.selectedIndex].value},
+                done: function(municipios) {
+                    municipioselect.disabled = false;
+                    for (let i = 0; i < municipios.length; i++) {
+                        let opt = document.createElement('option');
+                        opt.value = municipios[i].id;
+                        opt.innerHTML = municipios[i].name;
+                        municipioselect.appendChild(opt);
+                    }
+                    if (municipio != 'undefined') {
+                        municipioselect.value = municipio;
+                    }
+                    return true;
+                }
+            }]);
+        };
+
         return {
-            init: function() {
+            init: function(municipio) {
                 let uf = document.getElementsByName('profile_field_ufmunicipio[uf]')[0];
-                uf.addEventListener('change', function() {
-                    ajax.call([{
-                        methodname: 'profilefield_brasilufmunicipio_get_municipios',
-                        args: {uf: uf.options[uf.selectedIndex].value},
-                        done: function(municipios) {
-                            let municipioselect = document.getElementsByName('profile_field_ufmunicipio[municipio]')[0];
-                            municipioselect.disabled = false;
-                            for (let i = 0; i < municipios.length; i++) {
-                                let opt = document.createElement('option');
-                                opt.value = municipios[i].id;
-                                opt.innerHTML = municipios[i].name;
-                                municipioselect.appendChild(opt);
-                            }
-                        }
-                    }]);
-                });
+                if (uf.options[uf.selectedIndex].value !== 'undefined') {
+                    get_municipios(municipio);
+                }
+                uf.addEventListener('change', get_municipios);
             }
         };
     }

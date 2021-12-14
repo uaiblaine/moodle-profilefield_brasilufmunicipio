@@ -1,8 +1,8 @@
 # Brasil UF e Município #
 
-TODO Describe the plugin shortly here.
+This plugins allows to select Municipio based on the selected UF.
 
-TODO Provide more detailed description here.
+It uses the  IBGE's API to get the list of Municipios based on UF.
 
 ## Installing via uploaded ZIP file ##
 

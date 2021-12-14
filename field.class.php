@@ -67,15 +67,18 @@ class profile_field_brasilufmunicipio extends profile_field_base {
     public function edit_field_add($mform) {
         global $PAGE;
 
+        $data = json_decode($this->data);
+
         $mform->addElement('hidden', 'profile_field_ufmunicipio', 1);
         $mform->setType('profile_field_ufmunicipio', PARAM_INT);
 
         $mform->addElement('select', 'profile_field_ufmunicipio[uf]', get_string('uf', 'profilefield_brasilufmunicipio'), $this->ufs);
+        $mform->setType('profile_field_ufmunicipio[uf]', PARAM_TEXT);
 
         $mform->addElement('select', 'profile_field_ufmunicipio[municipio]', get_string('municipio', 'profilefield_brasilufmunicipio'), [], 'disabled');
         $mform->addHelpButton('profile_field_ufmunicipio[municipio]', 'municipio', 'profilefield_brasilufmunicipio');
 
-        $PAGE->requires->js_call_amd('profilefield_brasilufmunicipio/field', 'init');
+        $PAGE->requires->js_call_amd('profilefield_brasilufmunicipio/field', 'init', [$data->municipio]);
     }
 
     /**
@@ -95,7 +98,6 @@ class profile_field_brasilufmunicipio extends profile_field_base {
      * @param stdClass $data data coming from the form
      */
     public function edit_save_data_preprocess($data, $datarecord) {
-        // TODO: por que uf vem nulo mas municipio vem certo?
         return json_encode($data);
     }
 
@@ -108,5 +110,25 @@ class profile_field_brasilufmunicipio extends profile_field_base {
      * @param stdClass $user User object.
      */
     public function edit_load_user_data($user) {
+        $data = json_decode($this->data);
+        $user->profile_field_ufmunicipio = ['uf' => $data->uf, 'municipio' => $data->municipio];
+    }
+
+    /**
+     * Display the data for this field
+     * @return string
+     */
+    public function display_data() {
+        $data = json_decode($this->data);
+
+        $url = 'https://servicodados.ibge.gov.br/api/v1/localidades/municipios/';
+        $curl = new \curl();
+        $res = $curl->get($url . $data->municipio);
+        $display = '';
+        if ($res) {
+            $res = json_decode($res);
+            $display = $data->uf . ' / ' . $res->nome;
+        }
+        return $display;
     }
 }
