@@ -31,5 +31,6 @@ $functions = array(
         'description'  => 'Return the list of municipios based on UF',
         'type'         => 'read',
         'ajax'         => true,
+        'loginrequired' => false,
     ),
 );

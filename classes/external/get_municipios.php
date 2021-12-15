@@ -53,10 +53,6 @@ class get_municipios extends \external_api {
             'uf' => $uf,
         ]);
         $uf = $params['uf'];
-        // Validate context.
-        $context = \context_system::instance();
-        self::validate_context($context);
-
 
         $url = 'https://servicodados.ibge.gov.br/api/v1/localidades/estados/';
         $curl = new \curl();

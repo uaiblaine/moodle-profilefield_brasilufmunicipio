@@ -115,9 +115,11 @@ class profile_field_brasilufmunicipio extends profile_field_base {
      * @param stdClass $user User object.
      */
     public function edit_load_user_data($user) {
-        $data = json_decode($this->data);
-        if ($data) {
-            $user->profile_field_ufmunicipio = ['uf' => $data->uf, 'municipio' => $data->municipio];
+        if (!empty($this->data)) {
+            $data = json_decode($this->data);
+            if ($data) {
+                $user->profile_field_ufmunicipio = ['uf' => $data->uf, 'municipio' => $data->municipio];
+            }
         }
     }
 
