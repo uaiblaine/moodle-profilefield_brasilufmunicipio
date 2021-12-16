@@ -103,6 +103,14 @@ class profile_field_brasilufmunicipio extends profile_field_base {
      * @param stdClass $data data coming from the form
      */
     public function edit_save_data_preprocess($data, $datarecord) {
+        $url = 'https://servicodados.ibge.gov.br/api/v1/localidades/municipios/';
+        $curl = new \curl();
+        $res = $curl->get($url . $data['municipio']);
+        $display = '';
+        if ($res) {
+            $res = json_decode($res);
+            $data['nome'] = $res->nome;
+        }
         return json_encode($data);
     }
 
@@ -129,15 +137,7 @@ class profile_field_brasilufmunicipio extends profile_field_base {
      */
     public function display_data() {
         $data = json_decode($this->data);
-
-        $url = 'https://servicodados.ibge.gov.br/api/v1/localidades/municipios/';
-        $curl = new \curl();
-        $res = $curl->get($url . $data->municipio);
-        $display = '';
-        if ($res) {
-            $res = json_decode($res);
-            $display = $data->uf . ' / ' . $res->nome;
-        }
+        $display = $data->uf . ' / ' . $data->nome;
         return $display;
     }
 }
