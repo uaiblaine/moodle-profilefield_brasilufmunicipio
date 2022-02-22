@@ -30,35 +30,7 @@
  */
 class profile_field_brasilufmunicipio extends profile_field_base {
 
-    private $ufs = [
-        'AC' => 'AC',
-        'AL' => 'AL',
-        'AM' => 'AM',
-        'AP' => 'AP',
-        'BA' => 'BA',
-        'CE' => 'CE',
-        'DF' => 'DF',
-        'ES' => 'ES',
-        'GO' => 'GO',
-        'MA' => 'MA',
-        'MG' => 'MG',
-        'MS' => 'MS',
-        'MT' => 'MT',
-        'PA' => 'PA',
-        'PB' => 'PB',
-        'PE' => 'PE',
-        'PI' => 'PI',
-        'PR' => 'PR',
-        'RJ' => 'RJ',
-        'RN' => 'RN',
-        'RO' => 'RO',
-        'RR' => 'RR',
-        'RS' => 'RS',
-        'SC' => 'SC',
-        'SE' => 'SE',
-        'SP' => 'SP',
-        'TO' => 'TO'
-    ];
+    private $ufs = [];
 
     /**
      * Add fields for editing a text profile field.
@@ -66,6 +38,37 @@ class profile_field_brasilufmunicipio extends profile_field_base {
      */
     public function edit_field_add($mform) {
         global $PAGE;
+
+        $this->ufs = [
+            ''  => get_string('choosedots'),
+            'AC' => 'AC',
+            'AL' => 'AL',
+            'AM' => 'AM',
+            'AP' => 'AP',
+            'BA' => 'BA',
+            'CE' => 'CE',
+            'DF' => 'DF',
+            'ES' => 'ES',
+            'GO' => 'GO',
+            'MA' => 'MA',
+            'MG' => 'MG',
+            'MS' => 'MS',
+            'MT' => 'MT',
+            'PA' => 'PA',
+            'PB' => 'PB',
+            'PE' => 'PE',
+            'PI' => 'PI',
+            'PR' => 'PR',
+            'RJ' => 'RJ',
+            'RN' => 'RN',
+            'RO' => 'RO',
+            'RR' => 'RR',
+            'RS' => 'RS',
+            'SC' => 'SC',
+            'SE' => 'SE',
+            'SP' => 'SP',
+            'TO' => 'TO'
+        ];
 
         if (!empty($this->data)) {
             $data = json_decode($this->data);
@@ -82,6 +85,11 @@ class profile_field_brasilufmunicipio extends profile_field_base {
 
         $mform->addElement('select', 'profile_field_ufmunicipio[municipio]', get_string('municipio', 'profilefield_brasilufmunicipio'), [], 'disabled');
         $mform->addHelpButton('profile_field_ufmunicipio[municipio]', 'municipio', 'profilefield_brasilufmunicipio');
+
+        if ($this->field->required) {
+            $mform->addRule('profile_field_ufmunicipio[uf]', get_string('required'), 'required', null, 'client');
+            $mform->addRule('profile_field_ufmunicipio[municipio]', get_string('required'), 'required', null, 'client');
+        }
 
         $PAGE->requires->js_call_amd('profilefield_brasilufmunicipio/field', 'init', [$municipio]);
     }
