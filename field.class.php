@@ -119,7 +119,7 @@ class profile_field_brasilufmunicipio extends profile_field_base {
             $res = json_decode($res);
             $data['nome'] = $res->nome;
         }
-        return json_encode($data);
+        return json_encode($data, JSON_UNESCAPED_UNICODE);
     }
 
     /**
