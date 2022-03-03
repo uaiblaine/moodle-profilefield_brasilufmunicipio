@@ -41,5 +41,23 @@ function xmldb_profilefield_brasilufmunicipio_upgrade($oldversion) {
     // You will also have to create the db/install.xml file by using the XMLDB Editor.
     // Documentation for the XMLDB Editor can be found at {@link https://docs.moodle.org/dev/XMLDB_editor}.
 
+    if ($oldversion < 2022030301) {
+        $fieldssql = "SELECT id FROM {user_info_field} WHERE datatype = ?";
+        $fields = $DB->get_records_sql($fieldssql, ['brasilufmunicipio']);
+        foreach ($fields as $f) {
+            $sql = "SELECT id, data
+                      FROM {user_info_data} ud
+                      WHERE ud.fieldid = ?";
+            $data = $DB->get_records_sql($sql, [$f->id]);
+            foreach ($data as $d) {
+                $record = new stdclass();
+                $record->id = $d->id;
+                $record->data = json_encode(json_decode($d->data), JSON_UNESCAPED_UNICODE);
+                $DB->update_record('user_info_data', $record);
+            }
+        }
+        upgrade_plugin_savepoint(true, 2022030304, 'profilefield', 'brasilufmunicipio');
+    }
+
     return true;
 }
