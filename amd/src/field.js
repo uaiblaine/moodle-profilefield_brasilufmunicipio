@@ -24,9 +24,11 @@ define(
     ['core/ajax'],
     function(ajax) {
 
+        var fieldname = '';
+
         var get_municipios = function(municipio) {
-            let uf = document.getElementsByName('profile_field_ufmunicipio[uf]')[0];
-            let municipioselect = document.getElementsByName('profile_field_ufmunicipio[municipio]')[0];
+            let uf = document.getElementsByName(fieldname + '[uf]')[0];
+            let municipioselect = document.getElementsByName(fieldname  + '[municipio]')[0];
             municipioselect.innerHTML = "";
             ajax.call([{
                 methodname: 'profilefield_brasilufmunicipio_get_municipios',
@@ -48,10 +50,11 @@ define(
         };
 
         return {
-            init: function(municipio) {
-                let uf = document.getElementsByName('profile_field_ufmunicipio[uf]')[0];
+            init: function(municipio, fieldnameparam) {
+                fieldname = fieldnameparam;
+                let uf = document.getElementsByName(fieldname + '[uf]')[0];
                 if (uf.options[uf.selectedIndex].value !== 'undefined') {
-                    get_municipios(municipio);
+                    get_municipios(municipio, fieldname);
                 }
                 uf.addEventListener('change', get_municipios);
             }

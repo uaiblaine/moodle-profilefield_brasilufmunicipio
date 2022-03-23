@@ -33,7 +33,7 @@ class profile_field_brasilufmunicipio extends profile_field_base {
     private $ufs = [];
 
     /**
-     * Add fields for editing a text profile field.
+     * Add fields for editing a brasilufmunicipio profile field.
      * @param moodleform $mform
      */
     public function edit_field_add($mform) {
@@ -77,21 +77,24 @@ class profile_field_brasilufmunicipio extends profile_field_base {
             $municipio = null;
         }
 
-        $mform->addElement('hidden', 'profile_field_ufmunicipio', 1);
-        $mform->setType('profile_field_ufmunicipio', PARAM_INT);
+        $fieldname = $this->inputname;
+        $mform->addElement('hidden', $fieldname, 1, ['id' => $fieldname]);
+        $mform->setType($fieldname, PARAM_INT);
 
-        $mform->addElement('select', 'profile_field_ufmunicipio[uf]', get_string('uf', 'profilefield_brasilufmunicipio'), $this->ufs);
-        $mform->setType('profile_field_ufmunicipio[uf]', PARAM_TEXT);
+        $fieldnameuf = $fieldname . '[uf]';
+        $mform->addElement('select', $fieldnameuf, get_string('uf', 'profilefield_brasilufmunicipio'), $this->ufs);
+        $mform->setType($fieldnameuf, PARAM_TEXT);
 
-        $mform->addElement('select', 'profile_field_ufmunicipio[municipio]', get_string('municipio', 'profilefield_brasilufmunicipio'), [], 'disabled');
-        $mform->addHelpButton('profile_field_ufmunicipio[municipio]', 'municipio', 'profilefield_brasilufmunicipio');
+        $fieldnamemunicipio = $fieldname . '[municipio]';
+        $mform->addElement('select', $fieldnamemunicipio, get_string('municipio', 'profilefield_brasilufmunicipio'), [], 'disabled');
+        $mform->addHelpButton($fieldnamemunicipio, 'municipio', 'profilefield_brasilufmunicipio');
 
         if ($this->field->required) {
-            $mform->addRule('profile_field_ufmunicipio[uf]', get_string('required'), 'required', null, 'client');
-            $mform->addRule('profile_field_ufmunicipio[municipio]', get_string('required'), 'required', null, 'client');
+            $mform->addRule($fieldnameuf, get_string('required'), 'required', null, 'client');
+            $mform->addRule($fieldnamemunicipio, get_string('required'), 'required', null, 'client');
         }
 
-        $PAGE->requires->js_call_amd('profilefield_brasilufmunicipio/field', 'init', [$municipio]);
+        $PAGE->requires->js_call_amd('profilefield_brasilufmunicipio/field', 'init', [$municipio, $fieldname]);
     }
 
     /**
@@ -134,7 +137,9 @@ class profile_field_brasilufmunicipio extends profile_field_base {
         if (!empty($this->data)) {
             $data = json_decode($this->data);
             if ($data) {
-                $user->profile_field_ufmunicipio = ['uf' => $data->uf, 'municipio' => $data->municipio];
+                $user->{$this->inputname} = 1;
+                $user->{$this->inputname . '[uf]'} = $data->uf;
+                $user->{$this->inputname . '[municipio]'} = $data->municipio;
             }
         }
     }
