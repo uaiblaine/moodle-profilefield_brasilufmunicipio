@@ -35,14 +35,5 @@ class profile_define_brasilufmunicipio extends profile_define_base {
      * @param moodleform $form
      */
     public function define_form_specific($form) {
-        // Default data.
-        /*
-        $form->addElement('text', 'defaultdata', get_string('description', 'profilefield_brasilufmunicipio'), 'size="50"');
-        $form->setType('defaultdata', PARAM_TEXT);
-        $form->addRule('defaultdata', get_string('descriptionrequired', 'profilefield_brasilufmunicipio'), 'required', null, 'client');
-
-        $form->addElement('text', 'param1', get_string('label', 'profilefield_brasilufmunicipio'), 'size="50"');
-        $form->setType('param1', PARAM_TEXT);
-        */
     }
 }

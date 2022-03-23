@@ -30,6 +30,9 @@
  */
 class profile_field_brasilufmunicipio extends profile_field_base {
 
+    /**
+     * @var array List o UFs.
+     */
     private $ufs = [];
 
     /**
@@ -86,7 +89,8 @@ class profile_field_brasilufmunicipio extends profile_field_base {
         $mform->setType($fieldnameuf, PARAM_TEXT);
 
         $fieldnamemunicipio = $fieldname . '[municipio]';
-        $mform->addElement('select', $fieldnamemunicipio, get_string('municipio', 'profilefield_brasilufmunicipio'), [], 'disabled');
+        $mform->addElement('select',
+            $fieldnamemunicipio, get_string('municipio', 'profilefield_brasilufmunicipio'), [], 'disabled');
         $mform->addHelpButton($fieldnamemunicipio, 'municipio', 'profilefield_brasilufmunicipio');
 
         if ($this->field->required) {
@@ -112,6 +116,7 @@ class profile_field_brasilufmunicipio extends profile_field_base {
      * Saves the data coming from form
      *
      * @param stdClass $data data coming from the form
+     * @param stdClass $datarecord The object that will be used to save the record
      */
     public function edit_save_data_preprocess($data, $datarecord) {
         $url = 'https://servicodados.ibge.gov.br/api/v1/localidades/municipios/';
