@@ -28,6 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 $functions = array(
     'profilefield_brasilufmunicipio_get_municipios' => array(
         'classname'    => 'profilefield_brasilufmunicipio\external\get_municipios',
+        'methodname'   => 'execute',
         'description'  => 'Return the list of municipios based on UF',
         'type'         => 'read',
         'ajax'         => true,

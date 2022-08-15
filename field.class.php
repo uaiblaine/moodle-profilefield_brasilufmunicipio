@@ -42,43 +42,20 @@ class profile_field_brasilufmunicipio extends profile_field_base {
     public function edit_field_add($mform) {
         global $PAGE;
 
-        $this->ufs = [
-            ''  => get_string('choosedots'),
-            'AC' => 'AC',
-            'AL' => 'AL',
-            'AM' => 'AM',
-            'AP' => 'AP',
-            'BA' => 'BA',
-            'CE' => 'CE',
-            'DF' => 'DF',
-            'ES' => 'ES',
-            'GO' => 'GO',
-            'MA' => 'MA',
-            'MG' => 'MG',
-            'MS' => 'MS',
-            'MT' => 'MT',
-            'PA' => 'PA',
-            'PB' => 'PB',
-            'PE' => 'PE',
-            'PI' => 'PI',
-            'PR' => 'PR',
-            'RJ' => 'RJ',
-            'RN' => 'RN',
-            'RO' => 'RO',
-            'RR' => 'RR',
-            'RS' => 'RS',
-            'SC' => 'SC',
-            'SE' => 'SE',
-            'SP' => 'SP',
-            'TO' => 'TO'
-        ];
-
         if (!empty($this->data)) {
             $data = json_decode($this->data);
             $municipio = $data->municipio;
         } else {
             $municipio = null;
+            $availableufs =  [];
         }
+        $availableufs = [];
+        if ($ufs = explode(',', $this->field->param1)) {
+            foreach ($ufs as $f) {
+                $availableufs[$f] = $f;
+            }
+        }
+        $this->ufs = array_merge([''  => get_string('choosedots')], $availableufs);
 
         $fieldname = $this->inputname;
         $mform->addElement('hidden', $fieldname, 1, ['id' => $fieldname]);
