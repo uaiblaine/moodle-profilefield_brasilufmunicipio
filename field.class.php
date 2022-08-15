@@ -49,13 +49,7 @@ class profile_field_brasilufmunicipio extends profile_field_base {
             $municipio = null;
             $availableufs =  [];
         }
-        $availableufs = [];
-        if ($ufs = explode(',', $this->field->param1)) {
-            foreach ($ufs as $f) {
-                $availableufs[$f] = $f;
-            }
-        }
-        $this->ufs = array_merge([''  => get_string('choosedots')], $availableufs);
+        $this->ufs = array_merge([''  => get_string('choosedots')], $this->get_available_ufs());
 
         $fieldname = $this->inputname;
         $mform->addElement('hidden', $fieldname, 1, ['id' => $fieldname]);
@@ -134,5 +128,23 @@ class profile_field_brasilufmunicipio extends profile_field_base {
         $data = json_decode($this->data);
         $display = $data->uf . ' / ' . $data->nome;
         return $display;
+    }
+
+    public function edit_validate_field($data) {
+        $errors = [];
+        if (!in_array($data->profile_field_uf_municipio['uf'], $this->get_available_ufs())) {
+            $errors['profile_field_uf_municipio[uf]'] = get_string('errorunavailableuf', 'profilefield_brasilufmunicipio');
+        }
+        return $errors;
+    }
+
+    private function get_available_ufs() {
+        $availableufs = [];
+        if ($ufs = explode(',', $this->field->param1)) {
+            foreach ($ufs as $f) {
+                $availableufs[$f] = $f;
+            }
+        }
+        return $availableufs;
     }
 }

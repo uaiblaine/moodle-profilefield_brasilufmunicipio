@@ -27,7 +27,8 @@ defined('MOODLE_INTERNAL') || die();
 
 $string['availableufs'] = 'Available UFs';
 $string['availableufs_desc'] = 'Select the UFs you want the user to be able to select from';
+$string['errorunavailableuf'] = 'This UF is not available. Please, select another UF.';
 $string['municipio'] = 'Município';
+$string['municipio_help'] = 'Select UF to fill Município.';
 $string['pluginname'] = 'Brasil UF e Município';
 $string['uf'] = 'UF';
-$string['municipio_help'] = 'Select UF to fill Município.';

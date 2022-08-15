@@ -28,4 +28,4 @@ $plugin->component = 'profilefield_brasilufmunicipio';
 $plugin->release = '7';
 $plugin->version = 2022081500;
 $plugin->requires = 2020061500;
-$plugin->maturity = MATURITY_RC;
+$plugin->maturity = MATURITY_STABLE;
