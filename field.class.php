@@ -141,9 +141,9 @@ class profile_field_brasilufmunicipio extends profile_field_base {
 
     public function edit_validate_field($data) {
         $errors = [];
-        $fieldname = $this->inputname;
-        if (!in_array($data->$fieldname['uf'], $this->get_available_ufs())) {
-            $errors[$fieldname . '_uf'] = get_string('errorunavailableuf', 'profilefield_brasilufmunicipio');
+        $fieldname = $this->inputname . '_uf';
+        if (!in_array($data->{$fieldname}, $this->get_available_ufs())) {
+            $errors[$fieldname] = get_string('errorunavailableuf', 'profilefield_brasilufmunicipio');
         }
         return $errors;
     }
