@@ -62,13 +62,8 @@ class profile_field_brasilufmunicipio extends profile_field_base {
 
         $fieldnamemunicipio = $fieldname . '_municipio';
         $mform->addElement('select',
-            $fieldnamemunicipio, get_string('municipio', 'profilefield_brasilufmunicipio'), [], 'disabled');
+            $fieldnamemunicipio, get_string('municipio', 'profilefield_brasilufmunicipio'), [], '');
         $mform->addHelpButton($fieldnamemunicipio, 'municipio', 'profilefield_brasilufmunicipio');
-
-        if ($this->field->required) {
-            $mform->addRule($fieldnameuf, get_string('required'), 'required', null, 'client');
-            $mform->addRule($fieldnamemunicipio, get_string('required'), 'required', null, 'client');
-        }
 
         $PAGE->requires->js_call_amd('profilefield_brasilufmunicipio/field', 'init', [$municipio, $fieldname]);
     }
@@ -92,9 +87,11 @@ class profile_field_brasilufmunicipio extends profile_field_base {
      */
     public function edit_save_data_preprocess($data, $datarecord) {
         $url = 'https://servicodados.ibge.gov.br/api/v1/localidades/municipios/';
+        $uf = optional_param($this->inputname . '_uf', '', PARAM_TEXT);
+        $mun = optional_param($this->inputname . '_municipio', '', PARAM_TEXT);
         $curl = new \curl();
-        $res = $curl->get($url . $data['uf']);
-        $display = '';
+        $res = $curl->get($url . $mun);
+        $data = ['uf' => $uf];
         if ($res) {
             $res = json_decode($res);
             $data['nome'] = $res->nome;
@@ -119,7 +116,6 @@ class profile_field_brasilufmunicipio extends profile_field_base {
      * @param stdClass $user User object.
      */
     public function edit_load_user_data($user) {
-        $user->{$this->inputname} = 1;
         if (!empty($this->data)) {
             $data = json_decode($this->data);
             if ($data) {
@@ -169,9 +165,5 @@ class profile_field_brasilufmunicipio extends profile_field_base {
             }
         }
         return $availableufs;
-    }
-    public function definition_after_data(&$mform) {
-            $param = $mform->getElement($this->inputname);
-            $param->setValue(1);
     }
 }
