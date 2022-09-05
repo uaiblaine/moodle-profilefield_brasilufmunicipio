@@ -52,14 +52,15 @@ class profile_field_brasilufmunicipio extends profile_field_base {
         $this->ufs = array_merge([''  => get_string('choosedots')], $this->get_available_ufs());
 
         $fieldname = $this->inputname;
-        $mform->addElement('hidden', $fieldname, 1, ['id' => $fieldname]);
+
+        $mform->addElement('hidden', $fieldname, '1', '');
         $mform->setType($fieldname, PARAM_INT);
 
-        $fieldnameuf = $fieldname . '[uf]';
+        $fieldnameuf = $fieldname . '_uf';
         $mform->addElement('select', $fieldnameuf, get_string('uf', 'profilefield_brasilufmunicipio'), $this->ufs);
         $mform->setType($fieldnameuf, PARAM_TEXT);
 
-        $fieldnamemunicipio = $fieldname . '[municipio]';
+        $fieldnamemunicipio = $fieldname . '_municipio';
         $mform->addElement('select',
             $fieldnamemunicipio, get_string('municipio', 'profilefield_brasilufmunicipio'), [], 'disabled');
         $mform->addHelpButton($fieldnamemunicipio, 'municipio', 'profilefield_brasilufmunicipio');
@@ -92,13 +93,21 @@ class profile_field_brasilufmunicipio extends profile_field_base {
     public function edit_save_data_preprocess($data, $datarecord) {
         $url = 'https://servicodados.ibge.gov.br/api/v1/localidades/municipios/';
         $curl = new \curl();
-        $res = $curl->get($url . $data['municipio']);
+        $res = $curl->get($url . $data['uf']);
         $display = '';
         if ($res) {
             $res = json_decode($res);
             $data['nome'] = $res->nome;
         }
         return json_encode($data, JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * Sets the default data for the field in the form object
+     * @param  moodleform $mform instance of the moodleform class
+     */
+    public function edit_field_set_default($mform) {
+        $mform->setDefault($this->inputname, 1);
     }
 
     /**
@@ -110,12 +119,12 @@ class profile_field_brasilufmunicipio extends profile_field_base {
      * @param stdClass $user User object.
      */
     public function edit_load_user_data($user) {
+        $user->{$this->inputname} = 1;
         if (!empty($this->data)) {
             $data = json_decode($this->data);
             if ($data) {
-                $user->{$this->inputname} = 1;
-                $user->{$this->inputname . '[uf]'} = $data->uf;
-                $user->{$this->inputname . '[municipio]'} = $data->municipio;
+                $user->{$this->inputname . '_uf'} = $data->uf;
+                $user->{$this->inputname . '_municipio'} = $data->municipio;
             }
         }
     }
@@ -134,9 +143,22 @@ class profile_field_brasilufmunicipio extends profile_field_base {
         $errors = [];
         $fieldname = $this->inputname;
         if (!in_array($data->$fieldname['uf'], $this->get_available_ufs())) {
-            $errors[$fieldname . '[uf]'] = get_string('errorunavailableuf', 'profilefield_brasilufmunicipio');
+            $errors[$fieldname . '_uf'] = get_string('errorunavailableuf', 'profilefield_brasilufmunicipio');
         }
         return $errors;
+    }
+
+    /**
+     * Sets the required flag for the field in the form object
+     *
+     * @param moodleform $mform instance of the moodleform class
+     */
+    public function edit_field_set_required($mform) {
+        global $USER;
+        if ($this->is_required() && ($this->userid == $USER->id || isguestuser())) {
+            $mform->addRule($this->inputname.'_uf', get_string('required'), 'required', null, 'client');
+            $mform->addRule($this->inputname.'_municipio', get_string('required'), 'required', null, 'client');
+        }
     }
 
     private function get_available_ufs() {
@@ -147,5 +169,9 @@ class profile_field_brasilufmunicipio extends profile_field_base {
             }
         }
         return $availableufs;
+    }
+    public function definition_after_data(&$mform) {
+            $param = $mform->getElement($this->inputname);
+            $param->setValue(1);
     }
 }
