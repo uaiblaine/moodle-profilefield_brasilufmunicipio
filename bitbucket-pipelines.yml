@@ -1,0 +1,8 @@
+pipelines:
+  branches:
+    staging:
+      - step:
+          name: Deploy
+          deployment: staging
+          script:
+            - 'curl -s -XPUT "https://ci.proa.org.br/moodle" -H "Authorization: Bearer $ACCESS_KEY"'
