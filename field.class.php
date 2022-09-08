@@ -44,7 +44,7 @@ class profile_field_brasilufmunicipio extends profile_field_base {
 
         if (!empty($this->data)) {
             $data = json_decode($this->data);
-            $municipio = $data->municipio;
+            $municipio = $data->nome;
         } else {
             $municipio = null;
             $availableufs =  [];
@@ -120,7 +120,7 @@ class profile_field_brasilufmunicipio extends profile_field_base {
             $data = json_decode($this->data);
             if ($data) {
                 $user->{$this->inputname . '_uf'} = $data->uf;
-                $user->{$this->inputname . '_municipio'} = $data->municipio;
+                $user->{$this->inputname . '_municipio'} = $data->nome;
             }
         }
     }
