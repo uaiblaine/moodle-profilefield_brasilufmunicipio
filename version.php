@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'profilefield_brasilufmunicipio';
-$plugin->release = '10';
-$plugin->version = 2022090700;
+$plugin->release = '11';
+$plugin->version = 2022091200;
 $plugin->requires = 2020061500;
 $plugin->maturity = MATURITY_STABLE;

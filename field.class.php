@@ -42,13 +42,6 @@ class profile_field_brasilufmunicipio extends profile_field_base {
     public function edit_field_add($mform) {
         global $PAGE;
 
-        if (!empty($this->data)) {
-            $data = json_decode($this->data);
-            $municipio = $data->municipio;
-        } else {
-            $municipio = null;
-            $availableufs =  [];
-        }
         $this->ufs = array_merge([''  => get_string('choosedots')], $this->get_available_ufs());
 
         $fieldname = $this->inputname;
@@ -64,6 +57,13 @@ class profile_field_brasilufmunicipio extends profile_field_base {
         $mform->addElement('select',
             $fieldnamemunicipio, get_string('municipio', 'profilefield_brasilufmunicipio'), [], '');
         $mform->addHelpButton($fieldnamemunicipio, 'municipio', 'profilefield_brasilufmunicipio');
+
+        if (!empty($this->data)) {
+            $data = json_decode($this->data);
+            $municipio = $data->codmunicipio;
+        } else {
+            $municipio = optional_param($fieldnamemunicipio, '', PARAM_TEXT);
+        }
 
         $PAGE->requires->js_call_amd('profilefield_brasilufmunicipio/field', 'init', [$municipio, $fieldname]);
     }
@@ -91,7 +91,7 @@ class profile_field_brasilufmunicipio extends profile_field_base {
         $mun = optional_param($this->inputname . '_municipio', '', PARAM_TEXT);
         $curl = new \curl();
         $res = $curl->get($url . $mun);
-        $data = ['uf' => $uf];
+        $data = ['uf' => $uf, 'codmunicipio' => $mun];
         if ($res) {
             $res = json_decode($res);
             $data['nome'] = $res->nome;
@@ -120,7 +120,7 @@ class profile_field_brasilufmunicipio extends profile_field_base {
             $data = json_decode($this->data);
             if ($data) {
                 $user->{$this->inputname . '_uf'} = $data->uf;
-                $user->{$this->inputname . '_municipio'} = $data->municipio;
+                $user->{$this->inputname . '_municipio'} = $data->codmunicipio;
             }
         }
     }
@@ -158,10 +158,42 @@ class profile_field_brasilufmunicipio extends profile_field_base {
     }
 
     private function get_available_ufs() {
-        $availableufs = [];
-        if ($ufs = explode(',', $this->field->param1)) {
-            foreach ($ufs as $f) {
-                $availableufs[$f] = $f;
+        if ($this->field->param2) {
+            $availableufs = [
+                'AC' => 'AC',
+                'AL' => 'AL',
+                'AM' => 'AM',
+                'AP' => 'AP',
+                'BA' => 'BA',
+                'CE' => 'CE',
+                'DF' => 'DF',
+                'ES' => 'ES',
+                'GO' => 'GO',
+                'MA' => 'MA',
+                'MG' => 'MG',
+                'MS' => 'MS',
+                'MT' => 'MT',
+                'PA' => 'PA',
+                'PB' => 'PB',
+                'PE' => 'PE',
+                'PI' => 'PI',
+                'PR' => 'PR',
+                'RJ' => 'RJ',
+                'RN' => 'RN',
+                'RO' => 'RO',
+                'RR' => 'RR',
+                'RS' => 'RS',
+                'SC' => 'SC',
+                'SE' => 'SE',
+                'SP' => 'SP',
+                'TO' => 'TO'
+            ];
+        } else {
+            $availableufs = [];
+            if ($ufs = explode(',', $this->field->param1)) {
+                foreach ($ufs as $f) {
+                    $availableufs[$f] = $f;
+                }
             }
         }
         return $availableufs;
