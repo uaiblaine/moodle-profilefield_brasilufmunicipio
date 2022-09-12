@@ -77,6 +77,9 @@ class profile_define_brasilufmunicipio extends profile_define_base {
                 $select->setSelected($availableufs);
             }
         }
+
+        $form->addElement('advcheckbox', 'param2',
+            get_string('showall', 'profilefield_brasilufmunicipio'));
     }
 
     /**
