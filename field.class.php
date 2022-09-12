@@ -42,7 +42,12 @@ class profile_field_brasilufmunicipio extends profile_field_base {
     public function edit_field_add($mform) {
         global $PAGE;
 
-        $this->ufs = array_merge([''  => get_string('choosedots')], $this->get_available_ufs());
+        if ($this->field->param2) {
+            $ufs = $this->get_all_ufs();
+        } else {
+            $ufs = $this->get_available_ufs();
+        }
+        $this->ufs = array_merge([''  => get_string('choosedots')], $ufs);
 
         $fieldname = $this->inputname;
 
@@ -164,44 +169,44 @@ class profile_field_brasilufmunicipio extends profile_field_base {
     }
 
     private function get_available_ufs() {
-        if ($this->field->param2) {
-            $availableufs = [
-                'AC' => 'AC',
-                'AL' => 'AL',
-                'AM' => 'AM',
-                'AP' => 'AP',
-                'BA' => 'BA',
-                'CE' => 'CE',
-                'DF' => 'DF',
-                'ES' => 'ES',
-                'GO' => 'GO',
-                'MA' => 'MA',
-                'MG' => 'MG',
-                'MS' => 'MS',
-                'MT' => 'MT',
-                'PA' => 'PA',
-                'PB' => 'PB',
-                'PE' => 'PE',
-                'PI' => 'PI',
-                'PR' => 'PR',
-                'RJ' => 'RJ',
-                'RN' => 'RN',
-                'RO' => 'RO',
-                'RR' => 'RR',
-                'RS' => 'RS',
-                'SC' => 'SC',
-                'SE' => 'SE',
-                'SP' => 'SP',
-                'TO' => 'TO'
-            ];
-        } else {
-            $availableufs = [];
-            if ($ufs = explode(',', $this->field->param1)) {
-                foreach ($ufs as $f) {
-                    $availableufs[$f] = $f;
-                }
+        $availableufs = [];
+        if ($ufs = explode(',', $this->field->param1)) {
+            foreach ($ufs as $f) {
+                $availableufs[$f] = $f;
             }
         }
         return $availableufs;
+    }
+
+    private function get_all_ufs() {
+        return [
+            'AC' => 'AC',
+            'AL' => 'AL',
+            'AM' => 'AM',
+            'AP' => 'AP',
+            'BA' => 'BA',
+            'CE' => 'CE',
+            'DF' => 'DF',
+            'ES' => 'ES',
+            'GO' => 'GO',
+            'MA' => 'MA',
+            'MG' => 'MG',
+            'MS' => 'MS',
+            'MT' => 'MT',
+            'PA' => 'PA',
+            'PB' => 'PB',
+            'PE' => 'PE',
+            'PI' => 'PI',
+            'PR' => 'PR',
+            'RJ' => 'RJ',
+            'RN' => 'RN',
+            'RO' => 'RO',
+            'RR' => 'RR',
+            'RS' => 'RS',
+            'SC' => 'SC',
+            'SE' => 'SE',
+            'SP' => 'SP',
+            'TO' => 'TO'
+        ];
     }
 }
