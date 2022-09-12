@@ -60,7 +60,11 @@ class profile_field_brasilufmunicipio extends profile_field_base {
 
         if (!empty($this->data)) {
             $data = json_decode($this->data);
-            $municipio = $data->codmunicipio;
+            if (empty($data->codmunicipio)) {
+                $municipio = '';
+            } else {
+                $municipio = $data->codmunicipio;
+            }
         } else {
             $municipio = optional_param($fieldnamemunicipio, '', PARAM_TEXT);
         }
@@ -120,7 +124,9 @@ class profile_field_brasilufmunicipio extends profile_field_base {
             $data = json_decode($this->data);
             if ($data) {
                 $user->{$this->inputname . '_uf'} = $data->uf;
-                $user->{$this->inputname . '_municipio'} = $data->codmunicipio;
+                if (!empty($data->codmunicipio)) {
+                    $user->{$this->inputname . '_municipio'} = $data->codmunicipio;
+                }
             }
         }
     }
