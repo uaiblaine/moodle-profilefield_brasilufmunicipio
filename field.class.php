@@ -136,6 +136,10 @@ class profile_field_brasilufmunicipio extends profile_field_base {
                 if (!empty($data->nome)) {
                     $user->{$this->inputname} .= ' / ' . $data->nome;
                 }
+            } else {
+                $user->{$this->inputname} = '';
+                $user->{$this->inputname . '_uf'} = '';
+                $user->{$this->inputname . '_municipio'} = '';
             }
         }
     }
