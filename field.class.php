@@ -128,9 +128,13 @@ class profile_field_brasilufmunicipio extends profile_field_base {
         if (!empty($this->data)) {
             $data = json_decode($this->data);
             if ($data) {
+                $user->{$this->inputname} = $data->uf;
                 $user->{$this->inputname . '_uf'} = $data->uf;
                 if (!empty($data->codmunicipio)) {
                     $user->{$this->inputname . '_municipio'} = $data->codmunicipio;
+                }
+                if (!empty($data->nome)) {
+                    $user->{$this->inputname} .= ' / ' . $data->nome;
                 }
             }
         }
