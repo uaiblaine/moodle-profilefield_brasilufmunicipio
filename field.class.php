@@ -154,7 +154,9 @@ class profile_field_brasilufmunicipio extends profile_field_base {
      * @param stdClass $user User object.
      */
     public function edit_load_user_data($user) {
-        if (!empty($this->data)) {
+        if (empty($this->data)) {
+            $user->{$this->inputname} = '';
+        } else {
             $data = json_decode($this->data);
             if ($data) {
                 $user->{$this->inputname} = $data->uf;
