@@ -82,7 +82,7 @@ class profile_field_brasilufmunicipio extends profile_field_base {
                                 if ($res2) {
                                     $res2 = json_decode($res2);
                                     foreach ($res2 as $mun) {
-                                        if ($mun->nome == $data->nome) {
+                                        if (isset($mun->nome) && isset($data->nome) && ($mun->nome == $data->nome)) {
                                             $municipio = $mun->id;
                                             break(2);
                                         }

@@ -28,17 +28,17 @@ require_once($CFG->libdir.'/filelib.php');
  * @copyright   2021 Daniel Neis Araujo <daniel@adapta.online>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class get_municipios extends \external_api {
+class get_municipios extends \core_external\external_api {
 
     /**
      * Describes the external function parameters.
      *
      * @return external_function_parameters
      */
-    public static function execute_parameters(): \external_function_parameters {
+    public static function execute_parameters(): \core_external\external_function_parameters {
 
-        return new \external_function_parameters([
-            'uf' => new \external_value(PARAM_TEXT, 'UF to get municipios', VALUE_REQUIRED),
+        return new \core_external\external_function_parameters([
+            'uf' => new \core_external\external_value(PARAM_TEXT, 'UF to get municipios', VALUE_REQUIRED),
         ]);
     }
 
@@ -51,7 +51,7 @@ class get_municipios extends \external_api {
     public static function execute(string $uf): array {
         global $DB, $CFG;
 
-        $params = \external_api::validate_parameters(self::execute_parameters(), [
+        $params = \core_external\external_api::validate_parameters(self::execute_parameters(), [
             'uf' => $uf,
         ]);
         $uf = $params['uf'];
@@ -75,11 +75,11 @@ class get_municipios extends \external_api {
      *
      * @return external_description
      */
-    public static function execute_returns(): \external_description {
-        return new \external_multiple_structure(
-            new \external_single_structure([
-                'id' => new \external_value(PARAM_TEXT, 'ID of the Município.'),
-                'name' => new \external_value(PARAM_TEXT, 'Name of the Município.')
+    public static function execute_returns(): \core_external\external_description {
+        return new \core_external\external_multiple_structure(
+            new \core_external\external_single_structure([
+                'id' => new \core_external\external_value(PARAM_TEXT, 'ID of the Município.'),
+                'name' => new \core_external\external_value(PARAM_TEXT, 'Name of the Município.')
             ])
         );
     }
