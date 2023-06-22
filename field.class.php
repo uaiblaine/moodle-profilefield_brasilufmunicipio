@@ -182,7 +182,13 @@ class profile_field_brasilufmunicipio extends profile_field_base {
      */
     public function display_data() {
         $data = json_decode($this->data);
-        $display = $data->uf . ' / ' . $data->nome;
+        $display = '';
+        if (!empty($data->uf)) {
+            $display .= $data->uf . ' / ';
+        }
+        if (!empty($data->nome)) {
+            $display .= $data->nome;
+        }
         return $display;
     }
 
