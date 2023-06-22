@@ -130,8 +130,9 @@ class profile_field_brasilufmunicipio extends profile_field_base {
             $res = $curl->get($url . $mun);
             $data = ['uf' => $uf, 'codmunicipio' => $mun];
             if ($res) {
-                $res = json_decode($res);
-                $data['nome'] = $res->nome;
+                if ($res = json_decode($res)) {
+                   $data['nome'] = $res->nome;
+               }
             }
             return json_encode($data, JSON_UNESCAPED_UNICODE);
         }
@@ -209,6 +210,9 @@ class profile_field_brasilufmunicipio extends profile_field_base {
 
     private function get_available_ufs() {
         $availableufs = [];
+       if (is_null($this->field->param1)) {
+               return $this->get_all_ufs();
+       }
         if ($ufs = explode(',', $this->field->param1)) {
             foreach ($ufs as $f) {
                 $availableufs[$f] = $f;
