@@ -37,8 +37,8 @@ define(
                     municipioselect.disabled = false;
                     for (let i = 0; i < municipios.length; i++) {
                         let opt = document.createElement('option');
-                        opt.value = municipios[i].id;
-                        opt.innerHTML = municipios[i].name;
+                        opt.value = municipios[i].ibgeid;
+                        opt.innerHTML = municipios[i].municipio;
                         municipioselect.appendChild(opt);
                     }
                     if (municipio != 'undefined') {

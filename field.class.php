@@ -67,30 +67,7 @@ class profile_field_brasilufmunicipio extends profile_field_base {
             $data = json_decode($this->data);
             if (empty($data->codmunicipio)) {
                 $municipio = '';
-                global $USER;
                 if (!empty($data->uf)) {
-                    $url = 'https://servicodados.ibge.gov.br/api/v1/localidades/estados/';
-                    $curl = new \curl();
-                    $res = $curl->get($url);
-                    if ($res) {
-                        $res = json_decode($res);
-                        foreach ($res as $uf) {
-                            if ($uf->sigla == $data->uf) {
-                                $url = 'https://servicodados.ibge.gov.br/api/v1/localidades/estados/'.$uf->id .'/municipios';
-                                $curl = new \curl();
-                                $res2 = $curl->get($url);
-                                if ($res2) {
-                                    $res2 = json_decode($res2);
-                                    foreach ($res2 as $mun) {
-                                        if (isset($mun->nome) && isset($data->nome) && ($mun->nome == $data->nome)) {
-                                            $municipio = $mun->id;
-                                            break(2);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
                 }
             } else {
                 $municipio = $data->codmunicipio;
@@ -120,19 +97,14 @@ class profile_field_brasilufmunicipio extends profile_field_base {
      * @param stdClass $datarecord The object that will be used to save the record
      */
     public function edit_save_data_preprocess($data, $datarecord) {
-        $url = 'https://servicodados.ibge.gov.br/api/v1/localidades/municipios/';
         $uf = optional_param($this->inputname . '_uf', '', PARAM_TEXT);
         $mun = optional_param($this->inputname . '_municipio', '', PARAM_TEXT);
         if (empty($uf) && empty($mun)) {
             return $data;
         } else {
-            $curl = new \curl();
-            $res = $curl->get($url . $mun);
             $data = ['uf' => $uf, 'codmunicipio' => $mun];
-            if ($res) {
-                if ($res = json_decode($res)) {
-                   $data['nome'] = $res->nome;
-               }
+            if ($record = \profilefield_brasilufmunicipio\api::get_municipio_by_ibgeid($mun)) {
+                   $data['nome'] = $record->municipio;
             }
             return json_encode($data, JSON_UNESCAPED_UNICODE);
         }

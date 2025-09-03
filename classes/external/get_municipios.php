@@ -49,25 +49,12 @@ class get_municipios extends \core_external\external_api {
      * @return array
      */
     public static function execute(string $uf): array {
-        global $DB, $CFG;
-
         $params = \core_external\external_api::validate_parameters(self::execute_parameters(), [
             'uf' => $uf,
         ]);
         $uf = $params['uf'];
 
-        $url = 'https://servicodados.ibge.gov.br/api/v1/localidades/estados/';
-        $curl = new \curl();
-        $res = $curl->get($url . $uf . '/municipios');
-        $municipios = [];
-        if ($res) {
-            $res = json_decode($res);
-            foreach ($res as $m) {
-                $municipios[] = ['id' => $m->id, 'name' => $m->nome];
-            }
-        }
-        return $municipios;
-
+        return \profilefield_brasilufmunicipio\api::get_municipios($uf);
     }
 
     /**
@@ -78,8 +65,10 @@ class get_municipios extends \core_external\external_api {
     public static function execute_returns(): \core_external\external_description {
         return new \core_external\external_multiple_structure(
             new \core_external\external_single_structure([
-                'id' => new \core_external\external_value(PARAM_TEXT, 'ID of the Município.'),
-                'name' => new \core_external\external_value(PARAM_TEXT, 'Name of the Município.')
+                'id' => new \core_external\external_value(PARAM_INT, 'ID of the record.'),
+                'uf' => new \core_external\external_value(PARAM_TEXT, 'UF of the Município.'),
+                'ibgeid' => new \core_external\external_value(PARAM_TEXT, 'ID of the Município on IBGE database.'),
+                'municipio' => new \core_external\external_value(PARAM_TEXT, 'Name of the Município.')
             ])
         );
     }

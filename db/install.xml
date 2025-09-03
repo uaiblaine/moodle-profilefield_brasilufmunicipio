@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="user/profile/field/brasilufmunicipio/db" VERSION="20250903" COMMENT="XMLDB file for Moodle user/profile/field/brasilufmunicipio"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="profilefield_brasilufmunicipio" COMMENT="Default comment for profilefield_brasilufmunicipio, please edit me">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="uf" TYPE="char" LENGTH="2" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="ibgeid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="municipio" TYPE="char" LENGTH="1333" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="uf" UNIQUE="false" FIELDS="uf"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>

@@ -33,3 +33,4 @@ $string['municipio_help'] = 'Select UF to fill Município.';
 $string['pluginname'] = 'Brasil UF e Município';
 $string['showall'] = 'Show all UFs but validate selected value.';
 $string['uf'] = 'UF';
+$string['updatemunicipiostask'] = 'Update municipios task';

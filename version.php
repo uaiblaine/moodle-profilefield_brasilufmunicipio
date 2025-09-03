@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'profilefield_brasilufmunicipio';
-$plugin->release = '14';
-$plugin->version = 2022120601;
-$plugin->requires = 2023042405; // Moodle 4.2
+$plugin->release = '15';
+$plugin->version = 2025090300;
+$plugin->requires = 2023042405; // Moodle 5.0
 $plugin->maturity = MATURITY_STABLE;

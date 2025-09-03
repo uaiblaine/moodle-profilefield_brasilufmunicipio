@@ -59,5 +59,32 @@ function xmldb_profilefield_brasilufmunicipio_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2022030304, 'profilefield', 'brasilufmunicipio');
     }
 
+    if ($oldversion < 2025090300) {
+
+        // Define table profilefield_brasilufmunicipio to be created.
+        $table = new xmldb_table('profilefield_brasilufmunicipio');
+
+        // Adding fields to table profilefield_brasilufmunicipio.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('uf', XMLDB_TYPE_CHAR, '2', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('ibgeid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('municipio', XMLDB_TYPE_CHAR, '1333', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table profilefield_brasilufmunicipio.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Adding indexes to table profilefield_brasilufmunicipio.
+        $table->add_index('uf', XMLDB_INDEX_NOTUNIQUE, ['uf']);
+
+        // Conditionally launch create table for profilefield_brasilufmunicipio.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Brasilufmunicipio savepoint reached.
+        upgrade_plugin_savepoint(true, 2025090300, 'profilefield', 'brasilufmunicipio');
+    }
+
+
     return true;
 }
