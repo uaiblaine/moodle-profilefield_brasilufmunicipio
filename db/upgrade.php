@@ -85,6 +85,11 @@ function xmldb_profilefield_brasilufmunicipio_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025090300, 'profilefield', 'brasilufmunicipio');
     }
 
+    if ($oldversion < 2025090400) {
+        \profilefield_brasilufmunicipio\api::update_municipios();
+        // Brasilufmunicipio savepoint reached.
+        upgrade_plugin_savepoint(true, 2025090400, 'profilefield', 'brasilufmunicipio');
+    }
 
     return true;
 }
