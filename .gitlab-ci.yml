@@ -1,2 +1,8 @@
 include:
   - component: gitlab.com/components/sast/sast@main
+
+test-job1:
+  stage: test
+  script:
+    - echo "Mandatory stage to execute the SAST"
+
