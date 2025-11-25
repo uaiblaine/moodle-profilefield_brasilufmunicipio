@@ -91,7 +91,9 @@ class profile_define_brasilufmunicipio extends profile_define_base {
      * @return array|stdClass processed data object
      */
     public function define_save_preprocess($data) {
-        if (!empty($data->param1)) {
+        if (empty($data->param1)) {
+            $data->param1 = '';
+        } else {
             $data->param1 = implode(',', $data->param1);
         }
         return $data;
