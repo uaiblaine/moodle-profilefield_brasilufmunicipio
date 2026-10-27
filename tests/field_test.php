@@ -230,6 +230,20 @@ final class field_test extends \advanced_testcase {
     }
 
     /**
+     * A locked field whose stored UF is no longer available does not block the user's form.
+     */
+    public function test_locked_field_skips_validation(): void {
+        $field = $this->create_field(['locked' => 1, 'param1' => 'SC']);
+        $name = $field->inputname;
+        $this->setUser($field->userid);
+
+        $this->assertSame([], $field->edit_validate_field((object)[$name => 0, $name . '_uf' => 'SP']));
+        // The control: an administrator is told.
+        $this->setAdminUser();
+        $this->assertArrayHasKey($name . '_uf', $field->edit_validate_field((object)[$name => 0, $name . '_uf' => 'SP']));
+    }
+
+    /**
      * A code too long for the integer column is dropped rather than queried.
      */
     public function test_overlong_code_is_dropped(): void {

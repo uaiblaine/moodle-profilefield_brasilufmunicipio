@@ -102,7 +102,7 @@ class profile_field_brasilufmunicipio extends profile_field_base {
      * @throws moodle_exception When a value handed over by a CSV upload or a web service is not usable.
      */
     public function edit_save_data_preprocess($data, $datarecord) {
-        if ($this->is_locked() && !has_capability('moodle/user:update', context_system::instance())) {
+        if ($this->is_locked_for_user()) {
             // Core freezes only the hidden element; the selects are still in the request.
             return (string)$this->data;
         }
@@ -126,7 +126,7 @@ class profile_field_brasilufmunicipio extends profile_field_base {
      */
     public function edit_field_set_locked($mform) {
         parent::edit_field_set_locked($mform);
-        if ($this->is_locked() && !has_capability('moodle/user:update', context_system::instance())) {
+        if ($this->is_locked_for_user()) {
             $mform->hardFreeze([$this->inputname . '_uf', $this->inputname . '_municipio']);
         }
     }
@@ -207,6 +207,10 @@ class profile_field_brasilufmunicipio extends profile_field_base {
      */
     public function edit_validate_field($usernew) {
         $errors = [];
+        if ($this->is_locked_for_user()) {
+            // The value is kept as stored; an error on a frozen select would block the whole form.
+            return $errors;
+        }
         $ufname = $this->inputname . '_uf';
         if (property_exists($usernew, $ufname)) {
             $uf = (string)$usernew->{$ufname};
@@ -233,6 +237,15 @@ class profile_field_brasilufmunicipio extends profile_field_base {
             $mform->addRule($this->inputname . '_uf', get_string('required'), 'required', null, 'client');
             $mform->addRule($this->inputname . '_municipio', get_string('required'), 'required', null, 'client');
         }
+    }
+
+    /**
+     * Whether the field is locked for the current user, by core's rule in {@see profile_field_base::edit_field_set_locked()}.
+     *
+     * @return bool
+     */
+    private function is_locked_for_user(): bool {
+        return $this->is_locked() && !has_capability('moodle/user:update', context_system::instance());
     }
 
     /**

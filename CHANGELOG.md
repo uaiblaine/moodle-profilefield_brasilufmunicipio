@@ -36,6 +36,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - A CSV upload or a web service no longer drops the value it sends; a web service value that is
   not usable is refused with an error instead of clearing the field.
 - A locked field can no longer be changed by posting the selects.
+  It is not validated either, so a stored UF that is no longer available does not block the form.
 - A required field needs a UF on the server too, not only in the browser.
 - A municipality code too long for the database column no longer fails the query on PostgreSQL.
 - An IBGE outage no longer empties the municipality list of a UF.
