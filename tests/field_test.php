@@ -216,6 +216,24 @@ final class field_test extends \advanced_testcase {
     }
 
     /**
+     * A web service value made of digits is refused like any other unusable value, not read as a form's integer.
+     */
+    public function test_digits_only_external_value_is_refused(): void {
+        $field = $this->with_stored($this->create_field(), '{"uf":"SC","codmunicipio":"4205407","nome":"Florianópolis"}');
+        $this->assertArrayNotHasKey($field->inputname . '_uf', $_POST);
+
+        try {
+            $field->edit_save_data((object)['id' => $field->userid, $field->inputname => '123']);
+            $this->fail('A number was accepted as a value.');
+        } catch (\moodle_exception $e) {
+            $this->assertSame('errorinvalidvalue', $e->errorcode);
+        }
+        $this->assertSame('{"uf":"SC","codmunicipio":"4205407","nome":"Florianópolis"}', $this->stored($field));
+        // The control: the same number with the selects in the request is a form's integer.
+        $this->assertSame('{"uf":"SC","codmunicipio":""}', $this->submit_form($field, 'SC', ''));
+    }
+
+    /**
      * A user may not change a locked field, though the selects are in the request.
      */
     public function test_locked_field_keeps_its_value(): void {

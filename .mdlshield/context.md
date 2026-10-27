@@ -33,8 +33,10 @@ no user data. The chosen value is stored in core's `user_info_data` as JSON
   month) and the adhoc `populate_municipios`, queued by `db/install.php` and by the upgrade
   step 2025090400, which used to call IBGE itself. They fetch
   `https://servicodados.ibge.gov.br/api/v1/localidades/estados/<UF>/municipios` with Moodle's
-  `\curl`; a UF whose answer is not HTTP 200 with a non-empty list keeps its rows, and the task
-  then fails so it is retried. This is the only outbound request, and it carries no user or site
+  `\curl`; a UF whose answer is not HTTP 200 with a non-empty list keeps its rows. The scheduled
+  task then fails so it is retried; the adhoc task never fails (Behat's site installation runs
+  queued adhoc tasks and dies on one that throws) and queues the failed UFs again an hour later,
+  up to 24 runs. This is the only outbound request, and it carries no user or site
   data.
 - `field.class.php` (the field), `define.class.php` (the admin form), `amd/src/field.js`
   (fills the municipality select from the web service) and `classes/privacy/provider.php`
@@ -47,9 +49,10 @@ no user data. The chosen value is stored in core's `user_info_data` as JSON
   table, would be a finding.
 - **`edit_save_data_preprocess()` reads the two selects with `optional_param()`.** From a
   form, the field's own element is a hidden integer, and QuickForm drops the municipality
-  because its select has no server-side options. When the field's value is not an integer (a
-  CSV upload, whose form draws the selects too, or a user web service), the value itself is
-  converted through `convert_external_data()`, and an unusable one is refused. Every path
+  because its select has no server-side options. Only an integer value with the UF select in
+  the request takes that path; anything else (a CSV upload, whose form draws the selects too, or
+  a user web service, which may send a number) is converted through `convert_external_data()`,
+  and an unusable value is refused. Every path
   stores a UF only if it is one of the field's available UFs, and looks a code up only when it
   has 1 to 10 digits (the column is an integer). A locked field keeps its stored value for a
   user without `moodle/user:update`, because core freezes only the hidden element.

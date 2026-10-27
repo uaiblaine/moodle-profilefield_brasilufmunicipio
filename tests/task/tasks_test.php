@@ -27,6 +27,7 @@ namespace profilefield_brasilufmunicipio\task;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers     \profilefield_brasilufmunicipio\task\update_municipios
  * @covers     \profilefield_brasilufmunicipio\task\populate_municipios
+ * @covers     \profilefield_brasilufmunicipio\api::update_municipios
  */
 final class tasks_test extends \advanced_testcase {
     /**
@@ -69,18 +70,48 @@ final class tasks_test extends \advanced_testcase {
     }
 
     /**
-     * The adhoc task fills the table, and fails so the queue retries it when a UF was not refreshed.
+     * The adhoc task fills the table and, when a UF fails, queues only that UF for later instead of failing.
      */
     public function test_populate_municipios(): void {
         global $DB;
-        $this->resetAfterTest();
-        $this->mock_ibge(null);
-        (new populate_municipios())->execute();
-        $this->assertSame(27, $DB->count_records('profilefield_brasilufmunicipio'));
-
         $this->mock_ibge('TO');
-        $this->expectException(\moodle_exception::class);
+        $this->expectOutputRegex('/: TO$/m');
+
         (new populate_municipios())->execute();
+
+        $this->assertSame(26, $DB->count_records('profilefield_brasilufmunicipio'));
+        $retries = \core\task\manager::get_adhoc_tasks(populate_municipios::class);
+        $this->assertCount(1, $retries);
+        $retry = reset($retries);
+        $this->assertEquals((object)['ufs' => ['TO'], 'attempt' => 2], $retry->get_custom_data());
+        $this->assertGreaterThan(time(), $retry->get_next_run_time());
+
+        // The retry asks for TO alone, and queues nothing once it succeeds.
+        \curl::mock_response(json_encode([['id' => 1721000, 'nome' => 'Palmas']]));
+        $DB->delete_records('task_adhoc');
+        $retry->execute();
+        $names = array_column(\profilefield_brasilufmunicipio\api::get_municipios('TO'), 'municipio');
+        $this->assertSame(['Palmas'], array_values($names));
+        $this->assertEmpty(\core\task\manager::get_adhoc_tasks(populate_municipios::class));
+    }
+
+    /**
+     * The last attempt queues nothing more: the scheduled task takes over.
+     */
+    public function test_populate_municipios_gives_up(): void {
+        $this->expectOutputRegex('/: TO$/m');
+        \curl::mock_response('');
+        $task = new populate_municipios();
+        $task->set_custom_data(['ufs' => ['TO'], 'attempt' => populate_municipios::MAX_ATTEMPTS]);
+
+        $task->execute();
+
+        $this->assertEmpty(\core\task\manager::get_adhoc_tasks(populate_municipios::class));
+        // The control: the attempt before the last queues a retry.
+        \curl::mock_response('');
+        $task->set_custom_data(['ufs' => ['TO'], 'attempt' => populate_municipios::MAX_ATTEMPTS - 1]);
+        $task->execute();
+        $this->assertCount(1, \core\task\manager::get_adhoc_tasks(populate_municipios::class));
     }
 
     /**

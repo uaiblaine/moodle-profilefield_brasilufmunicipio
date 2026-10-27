@@ -29,21 +29,39 @@ use profilefield_brasilufmunicipio\api;
 /**
  * Fills the municipality list once after installation or upgrade, so the field works before the monthly refresh.
  *
+ * It never fails: Behat's site installation runs queued adhoc tasks and dies on one that throws, which would make
+ * every such installation depend on IBGE answering. The UFs that could not be refreshed are queued again an hour
+ * later instead, up to MAX_ATTEMPTS runs; after that the monthly scheduled task is the next attempt.
+ *
  * @package    profilefield_brasilufmunicipio
  * @copyright  2026 Anderson Blaine
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class populate_municipios extends \core\task\adhoc_task {
+    /** Runs before the task gives the remaining UFs up to the scheduled task. */
+    public const MAX_ATTEMPTS = 24;
+
     /**
-     * Refresh every UF; a UF whose refresh failed fails the task, so the task queue retries it.
+     * Refresh the UFs of this run, every UF on the first, and queue the ones that failed for an hour later.
+     *
+     * Custom data: ufs, the UF codes still to refresh (absent on the first run), and attempt, this run's number.
      *
      * @return void
-     * @throws \moodle_exception When the refresh of any UF failed.
      */
     public function execute(): void {
-        $failed = api::update_municipios();
-        if ($failed) {
-            throw new \moodle_exception('errorupdatefailed', 'profilefield_brasilufmunicipio', '', implode(', ', $failed));
+        $data = $this->get_custom_data();
+        $attempt = (int)($data->attempt ?? 1);
+        $failed = api::update_municipios(isset($data->ufs) ? (array)$data->ufs : null);
+        if (!$failed) {
+            return;
         }
+        mtrace(get_string('errorupdatefailed', 'profilefield_brasilufmunicipio', implode(', ', $failed)));
+        if ($attempt >= self::MAX_ATTEMPTS) {
+            return;
+        }
+        $retry = new self();
+        $retry->set_custom_data(['ufs' => $failed, 'attempt' => $attempt + 1]);
+        $retry->set_next_run_time(time() + HOURSECS);
+        \core\task\manager::queue_adhoc_task($retry);
     }
 }

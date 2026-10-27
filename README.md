@@ -84,6 +84,9 @@ Scheduled task and web service
 - `\profilefield_brasilufmunicipio\task\update_municipios` refreshes the municipality list from
   IBGE on day 2 of each month. A UF whose answer fails or is unusable keeps its current list, and
   the task fails so that it is retried.
+- `\profilefield_brasilufmunicipio\task\populate_municipios`, queued by the installation, fills
+  the list the first time. The UFs it could not refresh are queued again an hour later, for up to
+  24 runs.
 - `profilefield_brasilufmunicipio_get_municipios` lists the municipalities of a UF for the
   municipality select. It is available without login, because the field is shown on the sign-up
   page, and returns only the public IBGE list.

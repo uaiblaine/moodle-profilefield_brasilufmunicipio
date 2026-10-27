@@ -111,21 +111,23 @@ class api {
     }
 
     /**
-     * Replace each UF's municipalities with the list IBGE returns now.
+     * Replace the municipalities of each UF with the list IBGE returns now.
      *
      * A UF whose request fails keeps its current rows, so an IBGE outage never empties the list. Runs are serialised:
      * the adhoc and the scheduled task may overlap, and two interleaved replacements of one UF leave its rows twice.
      *
-     * @return array The UF codes whose refresh failed; every UF when another run held the lock throughout.
+     * @param array|null $ufs The UF codes to refresh, or null for every UF.
+     * @return array The UF codes whose refresh failed; all of them when another run held the lock throughout.
      */
-    public static function update_municipios(): array {
+    public static function update_municipios(?array $ufs = null): array {
+        $ufs = $ufs === null ? self::UFS : array_values(array_intersect(self::UFS, $ufs));
         $lock = \core\lock\lock_config::get_lock_factory('profilefield_brasilufmunicipio')->get_lock('update_municipios', 600);
         if (!$lock) {
-            return self::UFS;
+            return $ufs;
         }
         $failed = [];
         try {
-            foreach (self::UFS as $uf) {
+            foreach ($ufs as $uf) {
                 if (!self::update_uf($uf)) {
                     $failed[] = $uf;
                 }

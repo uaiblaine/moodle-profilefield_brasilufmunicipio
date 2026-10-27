@@ -24,7 +24,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - The JavaScript is an ES module; the municipality select starts with an empty option, is
   disabled while it loads and reports a failed request.
 - The scheduled task runs at a random minute and fails when a UF could not be refreshed, so it is
-  retried.
+  retried. The adhoc task never fails: it queues the UFs it could not refresh for an hour later,
+  up to 24 runs, so a site installation (Behat's included) never depends on IBGE answering.
 
 ### Fixed
 
@@ -34,7 +35,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   field count as filled. Values stored as `1` by earlier versions count as empty too, so a user
   with such a value in a required field is asked to fill it in.
 - A CSV upload or a web service no longer drops the value it sends; a web service value that is
-  not usable is refused with an error instead of clearing the field.
+  not usable, a bare number included, is refused with an error instead of clearing the field.
 - A locked field can no longer be changed by posting the selects.
   It is not validated either, so a stored UF that is no longer available does not block the form.
 - A required field needs a UF on the server too, not only in the browser.

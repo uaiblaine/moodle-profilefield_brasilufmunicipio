@@ -93,8 +93,8 @@ class profile_field_brasilufmunicipio extends profile_field_base {
      *
      * From a form, $data is the hidden element's integer, and the two selects are read from the request: the
      * municipality select has no server-side options, so the form's own data never carries it. A CSV upload or a web
-     * service hands over the value itself, which is converted instead; the upload form draws the selects too, so the
-     * request alone cannot tell the two apart.
+     * service hands over the value itself, which is converted instead. Neither fact alone tells the two apart: the
+     * upload form draws the selects too, and a web service may send a number, so the form path needs both.
      *
      * @param mixed $data The value of the field's own element.
      * @param stdClass $datarecord The record that will be saved.
@@ -106,8 +106,8 @@ class profile_field_brasilufmunicipio extends profile_field_base {
             // Core freezes only the hidden element; the selects are still in the request.
             return (string)$this->data;
         }
-        if (is_int($data) || ctype_digit((string)$data)) {
-            $uf = optional_param($this->inputname . '_uf', '', PARAM_TEXT);
+        $uf = optional_param($this->inputname . '_uf', null, PARAM_TEXT);
+        if ($uf !== null && (is_int($data) || ctype_digit((string)$data))) {
             $municipio = optional_param($this->inputname . '_municipio', '', PARAM_TEXT);
             return $this->encode($uf, $municipio, '') ?? '';
         }

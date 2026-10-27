@@ -66,9 +66,10 @@ mdl grunt m503 user/profile/field/brasilufmunicipio             # rebuild amd/bu
   this: it puts the selects in `$_POST` and calls `edit_save_data()` /
   `edit_save_data_preprocess()` with only `inputname` in `$usernew`, so never decide "form
   or not" from `$usernew`.
-- **Decide "form or external value" from `$data`, never from the request.**
+- **The form path needs both facts: an integer `$data` and the UF select in the request.**
   `tool_uploaduser`'s second form draws every profile field, so the selects are in its request
-  (empty) while `$data` is the CSV value. A non-integer `$data` is converted by
+  (empty) while `$data` is the CSV value; a web service may send a number with no selects.
+  Anything else is an external value, converted by
   `convert_external_data()`, which `tool_uploaduser` also calls to validate (null = invalid);
   the user web services validate nothing, so preprocess throws on null rather than clearing the
   field. Every path stores only an available UF.
@@ -82,8 +83,11 @@ mdl grunt m503 user/profile/field/brasilufmunicipio             # rebuild amd/bu
   required field count as filled; such rows still exist, and `get_value()` and `is_empty()`
   read them as empty, so a user holding one in a required field is asked to fill it in.
 - **No request to IBGE inside install or upgrade**: queue `populate_municipios`. A UF
-  whose answer is unusable keeps its rows (`api::update_municipios()` returns it), and the
-  tasks then throw so the queue retries.
+  whose answer is unusable keeps its rows (`api::update_municipios()` returns it). The
+  scheduled task then throws so cron retries it, but **the adhoc task must never throw**:
+  Behat's `install_site()` runs queued adhoc tasks and dies on an exception (the cron lock is
+  left unreleased), so every CI installing this plugin would depend on IBGE. It queues the
+  failed UFs an hour later instead, up to `MAX_ATTEMPTS`.
 
 ## Testing notes
 
