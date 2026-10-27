@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Text profile field definition.
+ * Brasil UF e Município profile field definition.
  *
  * @package    profilefield_brasilufmunicipio
  * @copyright  2021 Daniel Neis Araujo <daniel@adapta.online>
@@ -23,72 +23,42 @@
  */
 
 /**
- * Class profile_define_brasilufmunicipio
+ * Settings of a Brasil UF e Município field: the UFs it offers and whether the select lists every UF.
  *
+ * @package    profilefield_brasilufmunicipio
  * @copyright  2021 Daniel Neis Araujo <daniel@adapta.online>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class profile_define_brasilufmunicipio extends profile_define_base {
-
     /**
-     * Add elements for creating/editing a brasilufmunicipio profile field.
-     * @param moodleform $form
+     * Add the settings of this field type to the field definition form.
+     *
+     * param1 holds the available UFs, comma-separated; the multiple select splits that string itself when the form
+     * is filled. param2 lists every UF in the select while only the available ones are accepted.
+     *
+     * @param MoodleQuickForm $form The form.
+     * @return void
      */
     public function define_form_specific($form) {
-        global $DB;
-        $options = [
-            'AC' => 'AC',
-            'AL' => 'AL',
-            'AM' => 'AM',
-            'AP' => 'AP',
-            'BA' => 'BA',
-            'CE' => 'CE',
-            'DF' => 'DF',
-            'ES' => 'ES',
-            'GO' => 'GO',
-            'MA' => 'MA',
-            'MG' => 'MG',
-            'MS' => 'MS',
-            'MT' => 'MT',
-            'PA' => 'PA',
-            'PB' => 'PB',
-            'PE' => 'PE',
-            'PI' => 'PI',
-            'PR' => 'PR',
-            'RJ' => 'RJ',
-            'RN' => 'RN',
-            'RO' => 'RO',
-            'RR' => 'RR',
-            'RS' => 'RS',
-            'SC' => 'SC',
-            'SE' => 'SE',
-            'SP' => 'SP',
-            'TO' => 'TO'
-        ];
-        $select = $form->createElement('select', 'param1',
+        $select = $form->addElement(
+            'select',
+            'param1',
             get_string('availableufs', 'profilefield_brasilufmunicipio'),
-            $options, ['multiple' => true, 'size' => 13]);
+            \profilefield_brasilufmunicipio\api::get_ufs(),
+            ['size' => 13]
+        );
         $select->setMultiple(true);
+        $form->addHelpButton('param1', 'availableufs', 'profilefield_brasilufmunicipio');
 
-        $form->addElement($select);
-        $id = optional_param('id', 0, PARAM_INT);
-        if ($id) {
-            if ($availableufs = $DB->get_field('user_info_field', 'param1', ['id' => $id])) {
-                $select->setSelected($availableufs);
-            }
-        }
-
-        $form->addElement('advcheckbox', 'param2',
-            get_string('showall', 'profilefield_brasilufmunicipio'));
+        $form->addElement('advcheckbox', 'param2', get_string('showall', 'profilefield_brasilufmunicipio'));
+        $form->addHelpButton('param2', 'showall', 'profilefield_brasilufmunicipio');
     }
 
     /**
-     * Preprocess data from the add/edit profile field form before it is saved.
+     * Store the chosen UFs as a comma-separated list; none chosen means every UF.
      *
-     * This method is a hook for the child classes to overwrite.
-     *
-     * @param array|stdClass $data from the add/edit profile field form
-     * @return array|stdClass processed data object
+     * @param array|stdClass $data Data from the field definition form.
+     * @return array|stdClass The data to save.
      */
     public function define_save_preprocess($data) {
         if (empty($data->param1)) {

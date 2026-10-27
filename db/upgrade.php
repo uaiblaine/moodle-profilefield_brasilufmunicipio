@@ -23,8 +23,6 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Execute profilefield_brasilufmunicipio upgrade from the given old version.
  *
@@ -36,31 +34,23 @@ function xmldb_profilefield_brasilufmunicipio_upgrade($oldversion) {
 
     $dbman = $DB->get_manager();
 
-    // For further information please read {@link https://docs.moodle.org/dev/Upgrade_API}.
-    //
-    // You will also have to create the db/install.xml file by using the XMLDB Editor.
-    // Documentation for the XMLDB Editor can be found at {@link https://docs.moodle.org/dev/XMLDB_editor}.
-
-    if ($oldversion < 2022030301) {
-        $fieldssql = "SELECT id FROM {user_info_field} WHERE datatype = ?";
-        $fields = $DB->get_records_sql($fieldssql, ['brasilufmunicipio']);
-        foreach ($fields as $f) {
-            $sql = "SELECT id, data
-                      FROM {user_info_data} ud
-                      WHERE ud.fieldid = ?";
-            $data = $DB->get_records_sql($sql, [$f->id]);
-            foreach ($data as $d) {
-                $record = new stdclass();
-                $record->id = $d->id;
-                $record->data = json_encode(json_decode($d->data), JSON_UNESCAPED_UNICODE);
-                $DB->update_record('user_info_data', $record);
+    if ($oldversion < 2022030304) {
+        // Re-encode stored values without escaped Unicode; a value that is not JSON is left as it is.
+        $fieldids = $DB->get_fieldset_select('user_info_field', 'id', 'datatype = ?', ['brasilufmunicipio']);
+        foreach ($fieldids as $fieldid) {
+            $rs = $DB->get_recordset('user_info_data', ['fieldid' => $fieldid], '', 'id, data');
+            foreach ($rs as $d) {
+                $decoded = json_decode($d->data);
+                if ($decoded !== null) {
+                    $DB->set_field('user_info_data', 'data', json_encode($decoded, JSON_UNESCAPED_UNICODE), ['id' => $d->id]);
+                }
             }
+            $rs->close();
         }
         upgrade_plugin_savepoint(true, 2022030304, 'profilefield', 'brasilufmunicipio');
     }
 
     if ($oldversion < 2025090300) {
-
         // Define table profilefield_brasilufmunicipio to be created.
         $table = new xmldb_table('profilefield_brasilufmunicipio');
 
@@ -86,7 +76,8 @@ function xmldb_profilefield_brasilufmunicipio_upgrade($oldversion) {
     }
 
     if ($oldversion < 2025090400) {
-        \profilefield_brasilufmunicipio\api::update_municipios();
+        // Filled by a task: an upgrade step must not wait on IBGE.
+        \core\task\manager::queue_adhoc_task(new \profilefield_brasilufmunicipio\task\populate_municipios(), true);
         // Brasilufmunicipio savepoint reached.
         upgrade_plugin_savepoint(true, 2025090400, 'profilefield', 'brasilufmunicipio');
     }
