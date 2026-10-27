@@ -4,7 +4,7 @@
     xsi:noNamespaceSchemaLocation="../../../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="profilefield_brasilufmunicipio" COMMENT="Default comment for profilefield_brasilufmunicipio, please edit me">
+    <TABLE NAME="profilefield_brasilufmunicipio" COMMENT="Municipalities of each UF, refreshed from the IBGE localities API">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="uf" TYPE="char" LENGTH="2" NOTNULL="true" SEQUENCE="false"/>

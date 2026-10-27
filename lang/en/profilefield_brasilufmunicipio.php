@@ -26,11 +26,18 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['availableufs'] = 'Available UFs';
-$string['availableufs_desc'] = 'Select the UFs you want the user to be able to select from';
-$string['errorunavailableuf'] = 'This UF is not available. Please, select another UF.';
+$string['availableufs_help'] = 'The UFs a user may choose. With none selected, every UF is available.';
+$string['errorinvalidvalue'] = 'Invalid value. Use a UF code and a municipality name, such as "SC / Florianópolis", or the JSON the field stores.';
+$string['errorunavailableuf'] = 'This UF is not available. Please select another UF.';
+$string['errorupdatefailed'] = 'The municipalities of these UFs could not be refreshed from IBGE: {$a}';
 $string['municipio'] = 'Município';
-$string['municipio_help'] = 'Select UF to fill Município.';
+$string['municipio_help'] = 'Select a UF first to list its municipalities.';
 $string['pluginname'] = 'Brasil UF e Município';
-$string['showall'] = 'Show all UFs but validate selected value.';
+$string['privacy:metadata:profilefield_brasilufmunicipio:data'] = 'The chosen UF and municipality: the UF code, the IBGE code and the name of the municipality';
+$string['privacy:metadata:profilefield_brasilufmunicipio:fieldid'] = 'The ID of the profile field';
+$string['privacy:metadata:profilefield_brasilufmunicipio:tableexplanation'] = 'Additional profile data';
+$string['privacy:metadata:profilefield_brasilufmunicipio:userid'] = 'The ID of the user whose data is stored by the Brasil UF e Município profile field';
+$string['showall'] = 'List every UF';
+$string['showall_help'] = 'List every UF in the select, but accept only the available UFs.';
 $string['uf'] = 'UF';
-$string['updatemunicipiostask'] = 'Update municipios task';
+$string['updatemunicipiostask'] = 'Refresh the municipality list from IBGE';

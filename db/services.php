@@ -14,24 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
- * Conditional profile field webservice functions.
+ * Web service functions.
  *
- * @package     profilefield_brasilufmunicipio
- * @copyright   2021 Daniel Neis Araujo <daniel@adapta.online>
+ * @package    profilefield_brasilufmunicipio
+ * @copyright  2021 Daniel Neis Araujo <daniel@adapta.online>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$functions = array(
-    'profilefield_brasilufmunicipio_get_municipios' => array(
-        'classname'    => 'profilefield_brasilufmunicipio\external\get_municipios',
-        'methodname'   => 'execute',
-        'description'  => 'Return the list of municipios based on UF',
-        'type'         => 'read',
-        'ajax'         => true,
+$functions = [
+    'profilefield_brasilufmunicipio_get_municipios' => [
+        'classname' => 'profilefield_brasilufmunicipio\\external\\get_municipios',
+        'description' => 'List the municipalities of a UF.',
+        'type' => 'read',
+        'ajax' => true,
+        // The field is shown on the sign-up page, before login.
         'loginrequired' => false,
-    ),
-);
+    ],
+];

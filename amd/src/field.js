@@ -14,50 +14,100 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Handle opening a dialogue to configure condition data.
+ * Fills the municipality select of a Brasil UF e Município field from the chosen UF.
  *
  * @module     profilefield_brasilufmunicipio/field
  * @copyright  2021 Daniel Neis Araujo <daniel@adapta.online>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(
-    ['core/ajax'],
-    function(ajax) {
 
-        var fieldname = '';
+import Ajax from 'core/ajax';
+import Notification from 'core/notification';
+import Pending from 'core/pending';
+import {getString} from 'core/str';
 
-        var get_municipios = function(municipio) {
-            let uf = document.getElementsByName(fieldname + '_uf')[0];
-            let municipioselect = document.getElementsByName(fieldname  + '_municipio')[0];
-            municipioselect.innerHTML = "";
-            ajax.call([{
-                methodname: 'profilefield_brasilufmunicipio_get_municipios',
-                args: {uf: uf.options[uf.selectedIndex].value},
-                done: function(municipios) {
-                    municipioselect.disabled = false;
-                    for (let i = 0; i < municipios.length; i++) {
-                        let opt = document.createElement('option');
-                        opt.value = municipios[i].ibgeid;
-                        opt.innerHTML = municipios[i].municipio;
-                        municipioselect.appendChild(opt);
-                    }
-                    if (municipio != 'undefined') {
-                        municipioselect.value = municipio;
-                    }
-                    return true;
-                }
-            }]);
-        };
+/** @type {WeakMap<HTMLSelectElement, Object>} The latest load of each municipality select. */
+const latest = new WeakMap();
 
-        return {
-            init: function(municipio, fieldnameparam) {
-                fieldname = fieldnameparam;
-                let uf = document.getElementsByName(fieldname + '_uf')[0];
-                if (uf.options[uf.selectedIndex].value !== 'undefined') {
-                    get_municipios(municipio, fieldname);
-                }
-                uf.addEventListener('change', get_municipios);
-            }
-        };
+/**
+ * Replace the options of the municipality select with the municipalities of the chosen UF.
+ *
+ * The first option is always the empty "Choose..." one, so a required rule on the select means something.
+ *
+ * @param {HTMLSelectElement} ufSelect The UF select.
+ * @param {HTMLSelectElement} municipioSelect The municipality select.
+ * @param {String} selected The IBGE code to select, or ''.
+ * @returns {Promise}
+ */
+const load = async(ufSelect, municipioSelect, selected) => {
+    const pending = new Pending('profilefield_brasilufmunicipio/field:load');
+    try {
+        await fill(ufSelect, municipioSelect, selected);
+    } finally {
+        pending.resolve();
     }
-);
+};
+
+/**
+ * Do the work of load().
+ *
+ * @param {HTMLSelectElement} ufSelect The UF select.
+ * @param {HTMLSelectElement} municipioSelect The municipality select.
+ * @param {String} selected The IBGE code to select, or ''.
+ * @returns {Promise}
+ */
+const fill = async(ufSelect, municipioSelect, selected) => {
+    const token = {};
+    latest.set(municipioSelect, token);
+    const uf = ufSelect.value;
+    const empty = document.createElement('option');
+    empty.value = '';
+    empty.textContent = await getString('choosedots', 'core');
+    municipioSelect.replaceChildren(empty);
+    if (uf === '') {
+        return;
+    }
+
+    municipioSelect.disabled = true;
+    municipioSelect.setAttribute('aria-busy', 'true');
+    try {
+        const municipios = await Ajax.call([{
+            methodname: 'profilefield_brasilufmunicipio_get_municipios',
+            args: {uf},
+        }])[0];
+        // The UF may have changed while the request was out; a later load owns the select then.
+        if (latest.get(municipioSelect) !== token) {
+            return;
+        }
+        municipios.forEach(({ibgeid, municipio}) => {
+            const option = document.createElement('option');
+            option.value = ibgeid;
+            option.textContent = municipio;
+            municipioSelect.append(option);
+        });
+        municipioSelect.value = selected;
+    } catch (error) {
+        Notification.exception(error);
+    } finally {
+        if (latest.get(municipioSelect) === token) {
+            municipioSelect.disabled = false;
+            municipioSelect.removeAttribute('aria-busy');
+        }
+    }
+};
+
+/**
+ * Wire the two selects of a field.
+ *
+ * @param {String} selected The IBGE code stored or submitted for the field, or ''.
+ * @param {String} fieldname The field's input name; the selects are named after it.
+ */
+export const init = (selected, fieldname) => {
+    const ufSelect = document.getElementsByName(fieldname + '_uf')[0];
+    const municipioSelect = document.getElementsByName(fieldname + '_municipio')[0];
+    if (!ufSelect || !municipioSelect) {
+        return;
+    }
+    load(ufSelect, municipioSelect, String(selected ?? ''));
+    ufSelect.addEventListener('change', () => load(ufSelect, municipioSelect, ''));
+};

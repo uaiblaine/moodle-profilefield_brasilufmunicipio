@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - https://moodle.org/
+// This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -12,63 +12,75 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Web service that lists the municipalities of a UF.
+ *
+ * @package    profilefield_brasilufmunicipio
+ * @copyright  2021 Daniel Neis Araujo <daniel@adapta.online>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
 namespace profilefield_brasilufmunicipio\external;
 
-defined('MOODLE_INTERNAL') || die();
-
-require_once($CFG->libdir.'/filelib.php');
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_multiple_structure;
+use core_external\external_single_structure;
+use core_external\external_value;
+use profilefield_brasilufmunicipio\api;
 
 /**
- * Provides the profilefield_brasilufmunicipio_get_municipios external function.
+ * Lists the municipalities of a UF for the field's municipality select.
  *
- * @package     profilefield_brasilufmunicipio
- * @category    external
- * @copyright   2021 Daniel Neis Araujo <daniel@adapta.online>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * Declared without login in db/services.php: the field is shown on the sign-up page, and the list is public IBGE data.
+ *
+ * @package    profilefield_brasilufmunicipio
+ * @category   external
+ * @copyright  2021 Daniel Neis Araujo <daniel@adapta.online>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class get_municipios extends \core_external\external_api {
-
+class get_municipios extends external_api {
     /**
-     * Describes the external function parameters.
+     * Describe the parameters.
      *
      * @return external_function_parameters
      */
-    public static function execute_parameters(): \core_external\external_function_parameters {
-
-        return new \core_external\external_function_parameters([
-            'uf' => new \core_external\external_value(PARAM_TEXT, 'UF to get municipios', VALUE_REQUIRED),
+    public static function execute_parameters(): external_function_parameters {
+        return new external_function_parameters([
+            'uf' => new external_value(PARAM_ALPHA, 'UF code'),
         ]);
     }
 
     /**
-     * Finds users with the identity matching the given uf.
+     * List the municipalities of a UF.
      *
-     * @param string $uf The search request.
-     * @return array
+     * @param string $uf The UF code.
+     * @return array Municipalities sorted by name; empty for an unknown UF.
      */
     public static function execute(string $uf): array {
-        $params = \core_external\external_api::validate_parameters(self::execute_parameters(), [
-            'uf' => $uf,
-        ]);
-        $uf = $params['uf'];
-
-        return \profilefield_brasilufmunicipio\api::get_municipios($uf);
+        ['uf' => $uf] = self::validate_parameters(self::execute_parameters(), ['uf' => $uf]);
+        return array_values(array_map(fn(\stdClass $record): array => [
+            'id' => (int)$record->id,
+            'uf' => $record->uf,
+            'ibgeid' => (string)$record->ibgeid,
+            'municipio' => $record->municipio,
+        ], api::get_municipios($uf)));
     }
 
     /**
-     * Describes the external function result value.
+     * Describe the result.
      *
-     * @return external_description
+     * @return external_multiple_structure
      */
-    public static function execute_returns(): \core_external\external_description {
-        return new \core_external\external_multiple_structure(
-            new \core_external\external_single_structure([
-                'id' => new \core_external\external_value(PARAM_INT, 'ID of the record.'),
-                'uf' => new \core_external\external_value(PARAM_TEXT, 'UF of the Município.'),
-                'ibgeid' => new \core_external\external_value(PARAM_TEXT, 'ID of the Município on IBGE database.'),
-                'municipio' => new \core_external\external_value(PARAM_TEXT, 'Name of the Município.')
+    public static function execute_returns(): external_multiple_structure {
+        return new external_multiple_structure(
+            new external_single_structure([
+                'id' => new external_value(PARAM_INT, 'Record id'),
+                'uf' => new external_value(PARAM_ALPHA, 'UF code'),
+                'ibgeid' => new external_value(PARAM_ALPHANUM, 'IBGE code of the municipality'),
+                'municipio' => new external_value(PARAM_TEXT, 'Municipality name'),
             ])
         );
     }
